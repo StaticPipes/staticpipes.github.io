@@ -1,0 +1,31 @@
+name: Build and Deploy
+on:
+  push:
+  pull_request:
+
+jobs:
+  build_deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.12
+        architecture: x64
+    - name: Install Python Libs
+      run: "pip install -r requirements.in"
+    - name: Build StaticPipes site
+      run: "python sp.py build"
+    - name: Upload Artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: "./_site"
+      if: github.ref == 'refs/heads/main'
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+      if: github.ref == 'refs/heads/main'
